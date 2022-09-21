@@ -17,7 +17,8 @@ class Application
 
 	static public function registerAutoloader()
 	{
-		spl_autoload_register('App\Modules\System\Autoloader::loadClass');
+		$autoloader = new Psr4Autoloader();
+		$autoloader->register();
 	}
 
 	public function exec()
