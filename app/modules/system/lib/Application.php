@@ -28,7 +28,7 @@ class Application
 
 	public function startRouter() : void
 	{
-		$router = new Router();
+		$router = Container::getInstance()->get(Router::class);
 		$router->run();
 		$this->currRoute = $router->getCurrentRoute();
 	}
