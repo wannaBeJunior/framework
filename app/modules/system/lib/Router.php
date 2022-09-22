@@ -20,7 +20,7 @@ class Router
 			$this->currentRoute = $this->getRouteByURL();
 		}catch (\Exception $exception)
 		{
-			errorLog($exception->getMessage());
+			echo $exception->getMessage();
 		}
 	}
 

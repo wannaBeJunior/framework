@@ -34,8 +34,7 @@ class Psr4Autoloader
 			$this->requireMappedFile($namespace, $className);
 		}catch (\Exception $exception)
 		{
-			errorLog($exception->getMessage());
-			die();
+			echo $exception->getMessage();
 		}
 	}
 

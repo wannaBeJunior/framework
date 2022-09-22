@@ -23,7 +23,7 @@ class Controller
 			$this->callAction();
 		}catch (\Exception $exception)
 		{
-			errorLog($exception->getMessage());
+			echo $exception->getMessage();
 		}
 	}
 
