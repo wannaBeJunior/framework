@@ -4,7 +4,7 @@ namespace App\Modules\System;
 
 class Application
 {
-	protected array $currRoute;
+	protected Route $currRoute;
 
 	public function run() : void
 	{
@@ -34,8 +34,7 @@ class Application
 
 	public function exec()
 	{
-		$controllerFilePath = '/app/controllers/' . $this->currRoute['controller'] . '.php';
-		$controller = new Controller($controllerFilePath, $this->currRoute);
+		$controller = new Controller($this->currRoute);
 		$controller->run();
 	}
 }

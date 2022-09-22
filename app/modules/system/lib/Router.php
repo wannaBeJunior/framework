@@ -10,7 +10,7 @@ class Router
 		'{int}' => '([0-9]*)',
 		'{string}' => '([a-zA-Z-!@#$%^&*()]*)',
 	];
-	protected array $currentRoute;
+	protected Route $currentRoute;
 
 	public function run()
 	{
@@ -36,13 +36,15 @@ class Router
 		$this->currentURL = $url[0];
 	}
 
-	public function getRouteByURL() : array
+	public function getRouteByURL() : Route
 	{
 		foreach ($this->routes as $route => $metaData)
 		{
 			$route = $this->replacePlaceholders($route);
 			if(preg_match('/' . str_replace('/', '\/', trim($route, '/')) . '/', $this->currentURL, $matches))
 			{
+				unset($matches[0]);
+				$metaData->setMatches($matches);
 				return $metaData;
 			}
 		}
@@ -61,7 +63,7 @@ class Router
 		return $route;
 	}
 
-	public function getCurrentRoute()
+	public function getCurrentRoute() : Route
 	{
 		return $this->currentRoute;
 	}
