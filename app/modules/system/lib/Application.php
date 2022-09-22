@@ -23,6 +23,7 @@ class Application
 		$autoloader = new Psr4Autoloader();
 		$autoloader->register();
 		$autoloader->addNamespace('App\Modules\System\\', 'app/modules/system/lib/');
+		$autoloader->addNamespace('App\Controllers\\', 'app/controllers/');
 	}
 
 	public function startRouter() : void
