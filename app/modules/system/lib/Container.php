@@ -10,9 +10,9 @@ class Container
 	private function __construct()
 	{
 		$this->services = [
-			Router::class => new Router(),
-			Controller::class => new Controller(),
-			Configuration::class => new Configuration(),
+			Router::class => fn() => new Router(),
+			Controller::class => fn() => new Controller(),
+			Configuration::class => fn() => new Configuration(),
 		];
 	}
 
@@ -27,6 +27,6 @@ class Container
 
 	public function get(string $id)
 	{
-		return $this->services[$id];
+		return $this->services[$id]();
 	}
 }
