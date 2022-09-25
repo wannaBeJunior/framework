@@ -8,11 +8,11 @@ class Application
 
 	public function run() : void
 	{
-		$this->init();
-		$this->exec();
+		$this->initialization();
+		$this->execution();
 	}
 
-	public function init() : void
+	public function initialization() : void
 	{
 		$this->registerAutoloader();
 		$this->startRouter();
@@ -33,7 +33,7 @@ class Application
 		$this->currRoute = $router->getCurrentRoute();
 	}
 
-	public function exec()
+	public function execution()
 	{
 		Session::start();
 		$controller = Container::getInstance()->get(Controller::class);
