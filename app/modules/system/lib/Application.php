@@ -35,7 +35,9 @@ class Application
 
 	public function exec()
 	{
+		Session::start();
 		$controller = Container::getInstance()->get(Controller::class);
 		$controller->setRoute($this->currRoute);
+		$controller->run();
 	}
 }
