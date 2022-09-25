@@ -8,7 +8,7 @@ class Configuration
 
 	public function __construct()
 	{
-		$this->configuration = require_once $_SERVER['DOCUMENT_ROOT'] . "/app/configuration.php";
+		$this->configuration = require $_SERVER['DOCUMENT_ROOT'] . "/app/configuration.php";
 	}
 
 	public function has(string $entity) : bool
