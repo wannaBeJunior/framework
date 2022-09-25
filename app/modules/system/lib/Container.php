@@ -12,6 +12,7 @@ class Container
 		$this->services = [
 			Router::class => new Router(),
 			Psr4Autoloader::class => new Psr4Autoloader(),
+			Controller::class => new Controller(),
 		];
 	}
 

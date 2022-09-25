@@ -35,7 +35,7 @@ class Application
 
 	public function exec()
 	{
-		$controller = new Controller($this->currRoute);
-		$controller->run();
+		$controller = Container::getInstance()->get(Controller::class);
+		$controller->setRoute($this->currRoute);
 	}
 }
