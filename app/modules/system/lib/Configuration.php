@@ -1,0 +1,28 @@
+<?php
+
+namespace App\Modules\System;
+
+class Configuration
+{
+	protected array $configuration;
+
+	public function __construct()
+	{
+		$this->configuration = require_once $_SERVER['DOCUMENT_ROOT'] . "/app/configuration.php";
+	}
+
+	public function has(string $entity) : bool
+	{
+		return isset($this->configuration[$entity]);
+	}
+
+	public function get(string $entity)
+	{
+		return $this->configuration[$entity];
+	}
+
+	public function getDatabaseConfiguration() : array
+	{
+		return $this->get('DB');
+	}
+}

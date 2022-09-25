@@ -12,6 +12,7 @@ class Container
 		$this->services = [
 			Router::class => new Router(),
 			Controller::class => new Controller(),
+			Configuration::class => new Configuration(),
 		];
 	}
 
