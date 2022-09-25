@@ -7,8 +7,8 @@ class SqlSelectQuery extends SqlQuery
 	protected array $sqlStringParameters;
 	public function __construct(array $sqlStringParameters)
 	{
+		parent::__construct($sqlStringParameters);
 		$this->sql = "SELECT ?COLUMNS? FROM ?TABLE? ?JOIN? ?WHERE? ?ORDER BY?;";
-		$this->sqlStringParameters = $sqlStringParameters;
 		$this->buildSqlString();
 	}
 
