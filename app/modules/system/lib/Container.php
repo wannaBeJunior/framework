@@ -13,6 +13,7 @@ class Container
 			Router::class => fn() => new Router(),
 			Controller::class => fn() => new Controller(),
 			Configuration::class => fn() => new Configuration(),
+			Db::class => fn() => new Db(self::get(Configuration::class)),
 		];
 	}
 
