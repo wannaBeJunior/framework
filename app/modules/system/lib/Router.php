@@ -41,7 +41,7 @@ class Router
 		foreach ($this->routes as $route => $metaData)
 		{
 			$route = $this->replacePlaceholders($route);
-			if(preg_match('/' . str_replace('/', '\/', trim($route, '/')) . '/', $this->currentURL, $matches))
+			if(preg_match('/^' . str_replace('/', '\/', trim($route, '/')) . '$/', trim($this->currentURL, '/'), $matches))
 			{
 				unset($matches[0]);
 				$metaData->setMatches($matches);
