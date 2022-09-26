@@ -5,6 +5,7 @@ namespace App\Modules\System;
 class Container
 {
 	protected array $services;
+	protected array $cachedServices;
 	static protected Container $instance;
 
 	private function __construct()
@@ -16,6 +17,7 @@ class Container
 			Db::class => fn() => new Db(self::get(Configuration::class)),
 			Session::class => fn () => new Session(),
 			User::class => fn() => new User(self::get(Db::class), self::get(Session::class)),
+			HttpContext::class => fn() => new HttpContext(),
 		];
 	}
 
@@ -30,6 +32,11 @@ class Container
 
 	public function get(string $id)
 	{
-		return $this->services[$id]();
+		if(isset($this->cachedServices[$id]))
+		{
+			return $this->cachedServices[$id];
+		}
+		$this->cachedServices[$id] = $this->services[$id]();
+		return $this->cachedServices[$id];
 	}
 }
