@@ -14,6 +14,7 @@ class Container
 			Controller::class => fn() => new Controller(),
 			Configuration::class => fn() => new Configuration(),
 			Db::class => fn() => new Db(self::get(Configuration::class)),
+			Session::class => fn () => new Session(),
 		];
 	}
 
