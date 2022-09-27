@@ -4,13 +4,17 @@ namespace App\Modules\System;
 
 class View
 {
+	protected string $title;
+
 	public function show(string $viewName, array $result = [])
 	{
 		$this->startBuffering();
 		$this->showHeader();
 		$this->showContent($viewName, $result);
 		$this->showFooter();
-		echo $this->stopBuffering();
+		$html = $this->stopBuffering();
+		$this->replacePlaceHolders($html);
+		echo $html;
 	}
 
 	public function startBuffering()
@@ -44,5 +48,18 @@ class View
 	public function stopBuffering()
 	{
 		return ob_get_clean();
+	}
+
+	public function replacePlaceHolders(&$html)
+	{
+		if(isset($this->title))
+		{
+			$html = str_replace('#TITLE#', $this->title, $html);
+		}
+	}
+
+	public function setTitle(string $title)
+	{
+		$this->title = $title;
 	}
 }
