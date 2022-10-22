@@ -11,14 +11,14 @@ class User
 	protected string $registerDate;
 	protected string $accessLevel;
 
-	protected Db $db;
+	protected DataBase $db;
 	protected Session $session;
 
 	protected array $dbErrors = [
 		'23000' => 'Такой Email или номер телефона уже занят'
 	];
 
-	public function __construct(Db $db, Session $session)
+	public function __construct(DataBase $db, Session $session)
 	{
 		$this->db = $db;
 		$this->session = $session;
