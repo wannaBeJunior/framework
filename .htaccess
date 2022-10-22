@@ -1,4 +1,7 @@
-RewriteEngine On
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule .* index.php [L]
+AddDefaultCharset utf-8
+RewriteEngine on
+RewriteBase /
+
+RewriteCond %{REQUEST_URI} !robots\.txt$
+RewriteRule \.(jpg|jpeg|png|gif|pdf|js)$ - [NC,L]
+RewriteRule ^(.*)$ index.php
