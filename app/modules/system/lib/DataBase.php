@@ -2,59 +2,36 @@
 
 namespace App\Modules\System;
 
+use PDO;
+
 abstract class DataBase
 {
-	protected \PDO $pdo;
+	protected PDO $pdo;
 
-	final public function sqlExecution(string $sql, array $arParams = []) : array
+	final public function query(string $sql, array $params = []): DataBaseResult
 	{
-		$status = true;
-		preg_match_all('/:([A-Za-z0-9_]+)/', $sql, $matches);
-		$values = $matches[1];
-		if(count($values) != count($arParams))
-		{
-			return [
-				'status' => false,
-				'description' => 'Check your param array'
-			];
-		}
-		$stmt = $this->pdo->prepare($sql);
-		$requestType = self::getRequestType($sql);
-		$response = $stmt->execute($arParams);
-		if($response)
-		{
-			if($requestType == 'SELECT')
+		try {
+			$dataBaseResult = new DataBaseResult;
+			$dataBaseResult->startTimer();
+			if(!self::checkSqlStringPlaceholdersEquality($sql, $params))
 			{
-				return [
-					'status' => true,
-					'data' => $stmt->fetchAll()
-				];
-			}elseif($requestType == 'INSERT')
-			{
-				return [
-					'status' => true,
-					'id' => $this->pdo->lastInsertId()
-				];
-			}else
-			{
-				return [
-					'status' => true
-				];
+				throw new \PDOException('Placeholders numbers does not equal param array count');
 			}
+			$stmt = $this->pdo->prepare($sql);
+			$stmt->execute($params);
+			$dataBaseResult->stopTimer();
+			$dataBaseResult->setResult($stmt, $this->pdo);
+			return $dataBaseResult;
+		}catch (\PDOException $exception)
+		{
+			echo $exception->getMessage();
+			die();
 		}
-		return [
-			'status' => false,
-			'description' => 'PDO error'
-		];
 	}
 
-	final static public function getRequestType(string $sql)
+	final static public function checkSqlStringPlaceholdersEquality(string $sql, array $params): bool
 	{
-		preg_match('/^([A-Za-z]+)/', $sql, $matches);
-		if(count($matches) > 0)
-		{
-			return $matches[0];
-		}
-		return false;
+		preg_match_all('/:([A-Za-z0-9_]+)/', $sql, $matches);
+		return count($matches[1]) == count($params);
 	}
 }
