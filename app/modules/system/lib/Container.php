@@ -16,8 +16,9 @@ class Container
 			Configuration::class => fn() => new Configuration(),
 			MySqlDb::class => fn() => new MySqlDb(self::get(Configuration::class)),
 			Session::class => fn () => new Session(),
-			User::class => fn() => new User(self::get(MySqlDb::class), self::get(Session::class)),
+			User::class => fn() => new User(self::get(MySqlDb::class), self::get(Session::class), self::get(HttpContext::class), self::get(Settings::class)),
 			HttpContext::class => fn() => new HttpContext(),
+			Settings::class => fn() => new Settings(self::get(MySqlDb::class))
 		];
 	}
 
