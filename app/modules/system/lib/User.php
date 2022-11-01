@@ -13,228 +13,270 @@ class User
 
 	protected DataBase $db;
 	protected Session $session;
+	protected Settings $settings;
 
-	protected array $dbErrors = [
-		'23000' => 'Такой Email или номер телефона уже занят'
-	];
+	protected const TABLE_NAME = 'users';
 
-	public function __construct(DataBase $db, Session $session)
+	public function __construct(DataBase $db, Session $session, Settings $settings)
 	{
 		$this->db = $db;
 		$this->session = $session;
-		$this->setUserParameters();
+		$this->settings = $settings;
 	}
 
-	public function setUserParameters()
-	{
-		if($this->isAuthorized())
-		{
-			$userId = $this->session->get('USER');
-			$userParameters = $this->db->sqlExecution("SELECT * FROM `users` WHERE `id` = :id", [$userId['id']]);
-			$this->setId($userParameters['data'][0]['id']);
-			$this->setName($userParameters['data'][0]['name']);
-			$this->setEmail($userParameters['data'][0]['email']);
-			$this->setPhone($userParameters['data'][0]['phone']);
-			$this->setPhone($userParameters['data'][0]['phone']);
-			$this->setRegisterDate($userParameters['data'][0]['register_date']);
-			$this->setAccessLevel($userParameters['data'][0]['access_level']);
-		}
-	}
-	public function setId(string $id) : void
-	{
-		$this->id = $id;
-	}
-
-	public function setName(string $name) : void
-	{
-		$this->name = $name;
-	}
-
-	public function setEmail(string $email) : void
-	{
-		$this->email = $email;
-	}
-
-	public function setPhone(string $phone) : void
-	{
-		$this->phone = $phone;
-	}
-
-	public function setRegisterDate(string $registerDate) : void
-	{
-		$this->registerDate = $registerDate;
-	}
-
-	public function setAccessLevel(string $accessLevel) : void
-	{
-		$this->accessLevel = $accessLevel;
-	}
-
-	public function isAuthorized() : bool
+	public function isAuthorized(): bool
 	{
 		return $this->session->has('USER');
 	}
 
-	public function authorize()
+	public function authorize(string $login, string $password): array
 	{
-		$httpContext = Container::getInstance()->get(HttpContext::class);
-		$email = $httpContext->getPostOption('email');
-		$password = $httpContext->getPostOption('password');
-
 		$errors = [];
 
-		if(!Validation::emailValidate($email))
+		try {
+			if($this->isAuthorized())
+			{
+				throw new \Exception('Пользователь уже авторизован!');
+			}
+			$filter = [
+				'LOGIC' => 'OR',
+				'FIELDS' => [
+					'EMAIL' => $login,
+					'LOGIN' => $login,
+					'PHONE' => $login
+				]
+			];
+			$user = $this->getUserByFilter($filter);
+			if($user->getRowsCount() > 0)
+			{
+				$userData = $user->getResult();
+				if(password_verify($password, $userData['password']))
+				{
+					$userSessionParameters = [
+						'id' => $userData['id'],
+					];
+					$this->id = $userSessionParameters['id'];
+					$this->session->set('USER', $userSessionParameters);
+				}else
+				{
+					$errors[] = "Не верный пароль!";
+				}
+			}else
+			{
+				$errors[] = "Такой пользователь не найден!";
+			}
+		}catch (\Exception $exception)
 		{
-			$errors[] = "Неккоректный email!";
+			$errors[] = "Что-то пошло не так, но мы уже работаем над этим!";
 		}
-		if(!Validation::passwordValidate($password))
-		{
-			$errors[] = "Неккоректный пароль!";
-		}
+
+		$result = [
+			'errors' => $errors
+		];
 
 		if(!$errors)
 		{
-			try {
-				$sql = "SELECT * FROM `users` WHERE `email` = :email";
-				$user = $this->db->sqlExecution($sql, [$email]);
-				if($user['data'])
-				{
-					if(password_verify($password, $user['data'][0]['password']))
-					{
-						$userSessionParameters = [
-							'id' => $user['data'][0]['id'],
-							'access_level' => $user['data'][0]['access_level']
-						];
-						$this->session->set('USER', $userSessionParameters);
-						header('Location: /megasport/main');
-						die();
-					}else
-					{
-						$errors[] = "Не верный пароль!";
-					}
-				}else
-				{
-					$errors[] = "Такой пользователь не найден!";
-				}
-			}catch (\Exception $exception)
-			{
-				$errors[] = "Что-то пошло не так, но мы уже работаем над этим!";
-			}
+			$result['redirect'] = $this->settings->getBySettingName('REDIRECT_AFTER_AUTH');
 		}
-		return [
-			'input' => [
-				'email' => $email
-			],
-			'errors' => $errors
-		];
+
+		return $result;
 	}
 
-	public function registration()
+	public function getUserByFilter(array $filter): DataBaseResult
 	{
-		$httpContext = Container::getInstance()->get(HttpContext::class);
-		$login = $httpContext->getPostOption('login');
-		$name = $httpContext->getPostOption('name');
-		$email = $httpContext->getPostOption('email');
-		$phone = $httpContext->getPostOption('phone');
-		$password = $httpContext->getPostOption('password');
-		$confirmedPassword = $httpContext->getPostOption('confirmedPassword');
-		$personalData = $httpContext->getPostOption('personalData');
+		$sql = "SELECT * FROM {self::TABLE_NAME} ";
+		$logic = '';
+		$sqlParams = [];
 
+		if(count($filter['FIELDS']) > 1)
+		{
+			$logic = $filter['LOGIC'];
+		}
+
+		foreach($filter['FIELDS'] as $fieldName => $fieldValue)
+		{
+			$sqlParams[] = $fieldValue;
+			$fieldName = strtolower($fieldName);
+			$sql .= "`{$fieldName}` = {$fieldValue} {$logic}";
+		}
+
+		$sql = "SELECT * FROM `users` WHERE `email` = :email OR `login` = :login OR `phone` = :phone";
+		return $this->db->query($sql, $sqlParams);
+	}
+
+	public function register(array $userFields): array
+	{
 		$errors = [];
 
-		if(!(bool)$personalData)
+		$filter = [
+			'LOGIC' => 'OR',
+			'FIELDS' => [
+				'EMAIL' => $userFields['EMAIL'],
+				'LOGIN' => $userFields['LOGIN'],
+				'PHONE' => $userFields['PHONE']
+			]
+		];
+		$user = $this->getUserByFilter($filter);
+
+		if($user->getRowsCount())
+		{
+			$errors[] = "Пользователь с такими логином, телефоном или email уже существует!";
+		}
+		if(!(bool)$userFields['PERSONAL_DATA_AGREEMENT'])
 		{
 			$errors[] = "Нужно согласиться на обработку персональных данных!";
 		}
-		if($password != $confirmedPassword)
+		if($userFields['PASSWORD'] != $userFields['CONFIRMED_PASSWORD'])
 		{
 			$errors[] = "Пароли не совпадают!";
 		}
-		if(!Validation::nameValidate($name))
+		if(!Validation::nameValidate($userFields['NAME']))
 		{
 			$errors[] = "Имя должно состоять минимум из двух слов!";
 		}
-		if(!Validation::emailValidate($email))
+		if(!Validation::emailValidate($userFields['EMAIL']))
 		{
 			$errors[] = "Неккоректный email!";
 		}
-		if(!Validation::phoneValidate($phone))
+		if(!Validation::phoneValidate($userFields['PHONE']))
 		{
 			$errors[] = "Неккоректный номер телефона!";
 		}
-		if(!Validation::passwordValidate($password))
+		if(!Validation::passwordValidate($userFields['PASSWORD']))
 		{
 			$errors[] = "Слишком простой пароль!";
 		}
+
 		try {
-			$password = password_hash($password, PASSWORD_BCRYPT);
-			$registerDate = date('Y-m-j G:i:s');
-			$this->db->sqlExecution("INSERT INTO `users` (`name`, `email`, `phone`, `password`, `register_date`) VALUES (:name, :email, :phone, :password, :register_date);", [$name, $email, $phone, $password, $registerDate]);
+			if(!$errors)
+			{
+				$password = password_hash($userFields['PASSWORD'], PASSWORD_BCRYPT);
+				$registerDate = date('Y-m-j G:i:s');
+				$this->db->query("INSERT INTO `users` (`name`, `email`, `phone`, `login`, `password`, `register_date`) VALUES (:name, :email, :phone, :login, :password, :register_date);", [$userFields['NAME'], $userFields['EMAIL'], $userFields['PHONE'], $userFields['LOGIN'], $password, $registerDate]);
+			}
 		}catch (\Exception $exception)
 		{
-			$errors[] = $this->dbErrors[$exception->getCode()];
+			$errors[] = "Что-то пошло не так, но мы уже работаем над этим!";
 		}
-		if($errors)
+
+		$result = [
+			'errors' => $errors
+		];
+
+		if(!$errors)
 		{
-			return [
-				'input' => [
-					'login' => $login,
-					'name' => $name,
-					'phone' => $phone,
-					'email' => $email,
-				],
-				'errors' => $errors
-			];
+			$result['redirect'] = $this->settings->getBySettingName('REDIRECT_AFTER_REGISTER');
 		}
-		header('Location: /megasport/signin/');
-		die();
+
+		return $result;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getId(): string
+	public function getUserId() : int
 	{
-		return $this -> id;
+		if($this->isAuthorized())
+		{
+			return $this->id;
+		}
+		return 0;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getName(): string
+	public function getName() : string
 	{
-		return $this -> name;
+		$name = '';
+		if($this->isAuthorized())
+		{
+			if(!$this->name)
+			{
+				$sql = "SELECT `name` FROM `users` WHERE `id` = :id";
+				$queryResult = $this->db->query($sql, [$this->id])->getResult();
+				$name = $queryResult['name'];
+				$this->name = $name;
+			}else
+			{
+				$name = $this->name;
+			}
+		}
+
+		return $name;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getEmail(): string
+	public function getEmail() : string
 	{
-		return $this -> email;
+		$email = '';
+		if($this->isAuthorized())
+		{
+			if(!$this->email)
+			{
+				$sql = "SELECT `email` FROM `users` WHERE `id` = :id";
+				$queryResult = $this->db->query($sql, [$this->id])->getResult();
+				$email = $queryResult['email'];
+				$this->email = $email;
+			}else
+			{
+				$email = $this->email;
+			}
+		}
+
+		return $email;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getPhone(): string
+	public function getPhone() : string
 	{
-		return $this -> phone;
+		$phone = '';
+		if($this->isAuthorized())
+		{
+			if(!$this->phone)
+			{
+				$sql = "SELECT `phone` FROM `users` WHERE `id` = :id";
+				$queryResult = $this->db->query($sql, [$this->id])->getResult();
+				$phone = $queryResult['phone'];
+				$this->phone = $phone;
+			}else
+			{
+				$phone = $this->phone;
+			}
+		}
+
+		return $phone;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getRegisterDate(): string
+	public function getRegisterDate() : string
 	{
-		return $this -> registerDate;
+		$date = '';
+		if($this->isAuthorized())
+		{
+			if(!$this->registerDate)
+			{
+				$sql = "SELECT `register_date` FROM `users` WHERE `id` = :id";
+				$queryResult = $this->db->query($sql, [$this->id])->getResult();
+				$date = $queryResult['register_date'];
+				$this->registerDate = $date;
+			}else
+			{
+				$date = $this->registerDate;
+			}
+		}
+
+		return $date;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getAccessLevel(): string
+	public function getAccessLevel() : int
 	{
-		return $this -> accessLevel;
+		$accessLevel = '';
+		if($this->isAuthorized())
+		{
+			if(!$this->accessLevel)
+			{
+				$sql = "SELECT `access_level` FROM `users` WHERE `id` = :id";
+				$queryResult = $this->db->query($sql, [$this->id])->getResult();
+				$accessLevel = $queryResult['access_level'];
+				$this->accessLevel = $accessLevel;
+			}else
+			{
+				$accessLevel = $this->accessLevel;
+			}
+		}
+
+		return $accessLevel;
 	}
 }
