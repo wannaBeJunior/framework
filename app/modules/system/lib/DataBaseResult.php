@@ -26,8 +26,14 @@ class DataBaseResult
 
 	public function setResult(PDOStatement $statement, PDO $pdo): void
 	{
-		$this->result = $statement->fetchAll();
 		$this->rowsCount = $statement->rowCount();
+		if($this->rowsCount > 1)
+		{
+			$this->result = $statement->fetchAll();
+		}elseif($this->rowsCount == 1)
+		{
+			$this->result = $statement->fetch();
+		}
 		$this->completionTime = $this->endTime - $this->startTime;
 		$this->lastInsertedId = $pdo->lastInsertId();
 	}
