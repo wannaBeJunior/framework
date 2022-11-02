@@ -2,6 +2,8 @@
 
 namespace App\Modules\System;
 
+use Bitrix\Catalog\ProductTable;
+
 class User
 {
 	protected string $id;
@@ -84,7 +86,7 @@ class User
 
 	public function getUserByFilter(array $filter): DataBaseResult
 	{
-		$sql = "SELECT * FROM {self::TABLE_NAME} ";
+		$sql = "SELECT * FROM " . self::TABLE_NAME . " WHERE ";
 		$logic = '';
 		$sqlParams = [];
 
@@ -97,10 +99,11 @@ class User
 		{
 			$sqlParams[] = $fieldValue;
 			$fieldName = strtolower($fieldName);
-			$sql .= "`{$fieldName}` = {$fieldValue} {$logic}";
+			$sql .= "`{$fieldName}` = :{$fieldName} {$logic}";
 		}
 
-		$sql = "SELECT * FROM `users` WHERE `email` = :email OR `login` = :login OR `phone` = :phone";
+		$sql = rtrim($sql, ' OR');
+
 		return $this->db->query($sql, $sqlParams);
 	}
 
