@@ -2,8 +2,6 @@
 
 namespace App\Modules\System;
 
-use Bitrix\Catalog\ProductTable;
-
 class User
 {
 	protected string $id;
