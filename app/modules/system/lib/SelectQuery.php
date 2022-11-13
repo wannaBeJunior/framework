@@ -5,7 +5,6 @@ namespace App\Modules\System;
 class SelectQuery extends Query
 {
 	private array $select = [];
-	private string $tableName = '';
 	private array $where = [];
 	private array $joins = [];
 	private string $groupBy = '';
@@ -14,12 +13,6 @@ class SelectQuery extends Query
 	public function setSelect(string $selectStatement): self
 	{
 		$this->select[] = $selectStatement;
-		return $this;
-	}
-
-	public function setTableName(string $tableName): self
-	{
-		$this->tableName = $tableName;
 		return $this;
 	}
 
@@ -82,17 +75,6 @@ class SelectQuery extends Query
 			$this->sql = str_replace($selectPlaceholder, "`{$this->select[$i]}`{$fieldDelimiter}{$selectPlaceholder}", $this->sql);
 		}
 		$this->deletePlaceholder($selectPlaceholder);
-	}
-
-	private function replaceTableName(): void
-	{
-		if(!$this->select)
-		{
-			throw new \Exception('Add table name to query');
-		}
-		$tableNamePlaceholder = '{TABLE}';
-		$this->sql = str_replace($tableNamePlaceholder, "`{$this->tableName}` ", $this->sql);
-		$this->deletePlaceholder($tableNamePlaceholder);
 	}
 
 	private function replaceJoin(): void
