@@ -5,7 +5,6 @@ namespace App\Modules\System;
 class SelectQuery extends Query
 {
 	private array $select = [];
-	private array $where = [];
 	private array $joins = [];
 	private string $groupBy = '';
 	private array $limit = [];
@@ -13,12 +12,6 @@ class SelectQuery extends Query
 	public function setSelect(string $selectStatement): self
 	{
 		$this->select[] = $selectStatement;
-		return $this;
-	}
-
-	public function setWhere(array $where): self
-	{
-		$this->where[] = $where;
 		return $this;
 	}
 
@@ -93,25 +86,6 @@ class SelectQuery extends Query
 			}
 		}
 		$this->deletePlaceholder($joinPlaceholder);
-	}
-
-	private function replaceWhere(): void
-	{
-		$wherePlaceholder = '{WHERE}';
-		if($this->where)
-		{
-			for ($i = 0; $i < count($this->where); $i++)
-			{
-				if($i == 0)
-				{
-					$this->where[$i]['logic'] = 'WHERE ';
-				}
-				$logic = strtoupper($this->where[$i]['logic']);
-				$condition = $this->where[$i]['condition'];
-				$this->sql = str_replace($wherePlaceholder, "{$logic} {$condition} {$wherePlaceholder}", $this->sql);
-			}
-		}
-		$this->deletePlaceholder($wherePlaceholder);
 	}
 
 	private function replaceGroupBy(): void
