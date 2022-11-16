@@ -1,17 +1,28 @@
 <?php
 
-namespace App\Modules\System;
+namespace App\Modules\System\Autoloader;
 
-class Psr4Autoloader
+use Exception;
+
+class Autoloader
 {
 
 	protected array $namespaces;
-	public function register() : void
+
+	/**
+	 * @return void
+	 */
+	public function register(): void
 	{
 		spl_autoload_register([$this, 'loadClass']);
 	}
 
-	public function addNamespace(string $namespace, string $dir) : void
+	/**
+	 * @param string $namespace
+	 * @param string $dir
+	 * @return void
+	 */
+	public function addNamespace(string $namespace, string $dir): void
 	{
 		$namespace = trim($namespace, '\\') . '\\';
 
@@ -25,20 +36,29 @@ class Psr4Autoloader
 		$this->namespaces[$namespace][] = $dir;
 	}
 
-	public function loadClass(string $className) : void
+	/**
+	 * @param string $className
+	 * @return void
+	 */
+	public function loadClass(string $className): void
 	{
 		try {
 			$lastNamespaceSeparatorPosition = strrpos($className, '\\') + 1;
 			$namespace = substr($className, 0, $lastNamespaceSeparatorPosition);
 			$className = substr($className, $lastNamespaceSeparatorPosition, strlen($className));
 			$this->requireMappedFile($namespace, $className);
-		}catch (\Exception $exception)
+		}catch (Exception $exception)
 		{
 			echo $exception->getMessage();
 		}
 	}
 
-	public function requireMappedFile(string $namespace, string $className) : void
+	/**
+	 * @param string $namespace
+	 * @param string $className
+	 * @throws Exception
+	 */
+	public function requireMappedFile(string $namespace, string $className): void
 	{
 		if(isset($this->namespaces[$namespace]))
 		{
@@ -54,11 +74,11 @@ class Psr4Autoloader
 			}
 			if(!$isRequired)
 			{
-				throw new \Exception('Class ' . $className . ' doesnt exist. Please create file with this class');
+				throw new Exception('Class ' . $className . ' doesnt exist. Please create file with this class');
 			}
 		}else
 		{
-			throw new \Exception('Namespace ' . $namespace . ' doesnt exist in namespaces array. Please use Psr4Autoloader::addNamespace method for autoload classes');
+			throw new Exception('Namespace ' . $namespace . ' doesnt exist in namespaces array. Please use Psr4Autoloader::addNamespace method for autoload classes');
 		}
 	}
 }
