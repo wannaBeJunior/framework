@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Modules\System;
+namespace App\Modules\System\DataBase;
+
+use App\Modules\System\Configuration\Configuration;
 
 class MySqlDb extends DataBase
 {

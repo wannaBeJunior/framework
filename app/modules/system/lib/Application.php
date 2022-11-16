@@ -3,6 +3,11 @@
 namespace App\Modules\System;
 
 use App\Modules\System\Autoloader\Autoloader;
+use App\Modules\System\Container\Container;
+use App\Modules\System\Controller\Controller;
+use App\Modules\System\Router\Route;
+use App\Modules\System\Router\Router;
+use App\Modules\System\Session\Session;
 
 class Application
 {

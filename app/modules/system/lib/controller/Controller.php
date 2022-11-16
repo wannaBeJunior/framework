@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Modules\System;
+namespace App\Modules\System\Controller;
+
+use App\Modules\System\Router\Route;
 
 class Controller
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\System;
+namespace App\Modules\System\Session;
 
 class Session
 {

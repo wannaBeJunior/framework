@@ -7,5 +7,12 @@ return [
 	new Entity('App\Modules\System\Validator\\', 'app/modules/system/lib/validator'),
 	new Entity('App\Modules\System\Validator\Rules\\', 'app/modules/system/lib/validator/rules'),
 	new Entity('App\Controllers\\', 'app/controllers/'),
-	new Entity('App\Modules\System\\', 'app/modules/system'),
+	new Entity('App\Modules\System\\', 'app/modules/system/lib'),
+	new Entity('App\Modules\System\Controller\\', 'app/modules/system/lib/controller'),
+	new Entity('App\Modules\System\Configuration\\', 'app/modules/system/lib/configuration'),
+	new Entity('App\Modules\System\Container\\', 'app/modules/system/lib/container'),
+	new Entity('App\Modules\System\DataBase\\', 'app/modules/system/lib/database'),
+	new Entity('App\Modules\System\Router\\', 'app/modules/system/lib/router'),
+	new Entity('App\Modules\System\Session\\', 'app/modules/system/lib/session'),
+	new Entity('App\Modules\System\View\\', 'app/modules/system/lib/view'),
 ];

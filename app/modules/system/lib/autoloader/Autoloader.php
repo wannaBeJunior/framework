@@ -2,7 +2,6 @@
 
 namespace App\Modules\System\Autoloader;
 
-use Bitrix\Catalog\Ebay\EbayXMLer;
 use Exception;
 
 class Autoloader

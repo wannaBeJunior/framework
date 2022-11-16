@@ -1,6 +1,13 @@
 <?php
 
-namespace App\Modules\System;
+namespace App\Modules\System\Container;
+
+use App\Modules\System\Configuration\Configuration;
+use App\Modules\System\Controller\Controller;
+use App\Modules\System\DataBase\MySqlDb;
+use App\Modules\System\Router\Router;
+use App\Modules\System\Session\Session;
+use App\Modules\System\User;
 
 class Container
 {
@@ -16,9 +23,7 @@ class Container
 			Configuration::class => fn() => new Configuration(),
 			MySqlDb::class => fn() => new MySqlDb(self::get(Configuration::class)),
 			Session::class => fn () => new Session(),
-			User::class => fn() => new User(self::get(MySqlDb::class), self::get(Session::class), self::get(Settings::class)),
-			HttpContext::class => fn() => new HttpContext(),
-			Settings::class => fn() => new Settings(self::get(MySqlDb::class))
+			User::class => fn() => new User(self::get(MySqlDb::class), self::get(Session::class)),
 		];
 	}
 
