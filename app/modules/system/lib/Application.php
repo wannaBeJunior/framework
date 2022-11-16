@@ -2,6 +2,8 @@
 
 namespace App\Modules\System;
 
+use App\Modules\System\Autoloader\Autoloader;
+
 class Application
 {
 	protected Route $currRoute;
@@ -20,10 +22,9 @@ class Application
 
 	public function registerAutoloader() : void
 	{
-		$autoloader = new Psr4Autoloader();
+		$autoloader = new Autoloader();
 		$autoloader->register();
-		$autoloader->addNamespace('App\Modules\System\\', 'app/modules/system/lib/');
-		$autoloader->addNamespace('App\Controllers\\', 'app/controllers/');
+		$autoloader->registerApplicationNamespaces();
 	}
 
 	public function startRouter() : void

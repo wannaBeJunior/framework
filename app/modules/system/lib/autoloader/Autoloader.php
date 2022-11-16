@@ -2,6 +2,7 @@
 
 namespace App\Modules\System\Autoloader;
 
+use Bitrix\Catalog\Ebay\EbayXMLer;
 use Exception;
 
 class Autoloader
@@ -22,11 +23,11 @@ class Autoloader
 	 * @param string $dir
 	 * @return void
 	 */
-	public function addNamespace(string $namespace, string $dir): void
+	public function addNamespace(EntityInterface $entity): void
 	{
-		$namespace = trim($namespace, '\\') . '\\';
+		$namespace = trim($entity->getNamespace(), '\\') . '\\';
 
-		$dir = trim($dir, DIRECTORY_SEPARATOR) . '/';
+		$dir = trim($entity->getDir(), DIRECTORY_SEPARATOR) . '/';
 
 		if(!isset($this->namespaces[$namespace]))
 		{
@@ -79,6 +80,18 @@ class Autoloader
 		}else
 		{
 			throw new Exception('Namespace ' . $namespace . ' doesnt exist in namespaces array. Please use Psr4Autoloader::addNamespace method for autoload classes');
+		}
+	}
+
+	/**
+	 * @return void
+	 */
+	public function registerApplicationNamespaces(): void
+	{
+		$namespaces = require_once $_SERVER['DOCUMENT_ROOT'] . "/app/namespaces.php";
+		foreach($namespaces as $namespace)
+		{
+			$this->addNamespace($namespace);
 		}
 	}
 }
