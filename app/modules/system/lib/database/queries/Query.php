@@ -2,6 +2,10 @@
 
 namespace App\Modules\System\DataBase\Queries;
 
+use App\Modules\System\Container\Container;
+use App\Modules\System\DataBase\DataBaseResult;
+use App\Modules\System\DataBase\MySqlDb;
+
 abstract class Query
 {
 	protected string $sql;
