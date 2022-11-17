@@ -16,4 +16,6 @@ return [
 	new Entity('App\Modules\System\Router\\', 'app/modules/system/lib/router'),
 	new Entity('App\Modules\System\Session\\', 'app/modules/system/lib/session'),
 	new Entity('App\Modules\System\View\\', 'app/modules/system/lib/view'),
+	new Entity('App\Modules\System\Exceptions\Interfaces\\', 'app/modules/system/lib/exceptions/interfaces'),
+	new Entity('App\Modules\System\Exceptions\\', 'app/modules/system/lib/exceptions'),
 ];
