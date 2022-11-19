@@ -2,6 +2,9 @@
 
 namespace App\Modules\System\Router;
 
+use App\Modules\System\Exceptions\FileNotFoundException;
+use App\Modules\System\Exceptions\RouteNotFoundException;
+
 class Router
 {
 	protected array $routes;
@@ -10,48 +13,70 @@ class Router
 		'{int}' => '([0-9]*)',
 		'{string}' => '([a-zA-Z-!@#$%^&*()]*)',
 	];
-	protected Route $currentRoute;
+	protected Route $route;
+	protected array $matches = [];
 
-	public function run()
+	public function run(): void
 	{
 		try {
 			$this->setRoutes();
 			$this->setCurrentURL();
-			$this->currentRoute = $this->getRouteByURL();
-		}catch (\Exception $exception)
+			$this->route = $this->getRouteByURL();
+		}catch (FileNotFoundException $exception)
 		{
-			echo $exception->getMessage();
+			echo '500';
+			die();
+		}catch (RouteNotFoundException $exception)
+		{
+			echo '404';
+			die();
 		}
 	}
 
-	public function setRoutes()
+	/**
+	 * @throws FileNotFoundException
+	 */
+	private function setRoutes(): void
 	{
+		$path = $_SERVER['DOCUMENT_ROOT'] . '/app/routes.php';
+		if(!file_exists($path))
+		{
+			throw new FileNotFoundException('File ' . $path . ' was not found');
+		}
 		$this->routes = require $_SERVER['DOCUMENT_ROOT'] . '/app/routes.php';
 	}
 
-	public function setCurrentURL()
+	private function setCurrentURL(): void
 	{
 		$url = $_SERVER['REQUEST_URI'];
 		$url = explode('?', $url);
 		$this->currentURL = $url[0];
 	}
 
-	public function getRouteByURL() : Route
+	/**
+	 * @return Route
+	 * @throws RouteNotFoundException
+	 */
+	private function getRouteByURL(): Route
 	{
-		foreach ($this->routes as $route => $metaData)
+		foreach ($this->routes as $route)
 		{
-			$route = $this->replacePlaceholders($route);
-			if(preg_match('/^' . str_replace('/', '\/', trim($route, '/')) . '$/', trim($this->currentURL, '/'), $matches))
+			$path = $this->replacePlaceholders($route->getPath());
+			if($this->isCurrentUrl($path))
 			{
-				unset($matches[0]);
-				$metaData->setMatches($matches);
-				return $metaData;
+				unset($this->matches[0]);
+				$route->setMatches($this->matches);
+				return $route;
 			}
 		}
-		throw new \Exception('Route ' . $this->currentURL . ' doesnt exist. Please add this route to the app/routes.php');
+		throw new RouteNotFoundException('Route ' . $this->currentURL . ' doesnt exist. Please add this route to the app/routes.php');
 	}
 
-	public function replacePlaceholders(string $route) : string
+	/**
+	 * @param string $route
+	 * @return string
+	 */
+	private function replacePlaceholders(string $route): string
 	{
 		foreach (self::ROUTE_PLACEHOLDERS_TO_REGEXP as $placeholder => $regex)
 		{
@@ -63,8 +88,22 @@ class Router
 		return $route;
 	}
 
-	public function getCurrentRoute() : Route
+	/**
+	 * @param string $path
+	 * @return bool
+	 */
+	private function isCurrentUrl(string $path): bool
 	{
-		return $this->currentRoute;
+		$path = trim($path, '/');
+		$pattern = '/^' . str_replace('/', '\/', $path) . '$/';
+		return preg_match($pattern, trim($this->currentURL, '/'), $this->matches);
+	}
+
+	/**
+	 * @return Route
+	 */
+	public function getRoute(): Route
+	{
+		return $this->route;
 	}
 }
