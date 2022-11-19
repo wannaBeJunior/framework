@@ -2,6 +2,9 @@
 
 namespace App\Modules\System\Controller;
 
+use App\Modules\System\Exceptions\ClassDoesntExistException;
+use App\Modules\System\Exceptions\FileNotFoundException;
+use App\Modules\System\Exceptions\MethodDoesntExistException;
 use App\Modules\System\Router\Route;
 
 class Controller
@@ -10,42 +13,53 @@ class Controller
 	protected string $controllerType;
 	protected string $action;
 	protected ControllerInterface $controller;
-	protected Route $route;
 
-	public function setRoute(Route $route)
+	public function __construct(Route $route)
 	{
-		$this->route = $route;
+		$this->filePath = '/app/controllers/' . $route->getController() . '.php';
+		$this->controllerType = $route->getController();
+		$this->action = $route->getAction();
 	}
 
 	public function run()
 	{
 		try {
-			$this->setFilePath();
-			$this->setControllerType();
-			$this->setAction();
+			$this->checkControllerFileExists($this->filePath);
 			$this->getControllerInstance();
 			$this->callAction();
-		}catch (\Exception $exception)
+		}catch (FileNotFoundException $exception)
 		{
-			echo $exception->getMessage();
+			echo '500 file not found';
+			die();
+		}catch (ClassDoesntExistException $exception)
+		{
+			echo '500 class doesnt exist';
+			die();
+		}catch (MethodDoesntExistException $exception)
+		{
+			echo '500 method doesnt exist';
+			die();
+		}finally {
+			echo '500';
+			die();
 		}
 	}
 
-	public function setFilePath()
+	/**
+	 * @param string $path
+	 * @throws FileNotFoundException
+	 */
+	private function checkControllerFileExists(string $path): void
 	{
-		$this->filePath = '/app/controllers/' . $this->route->getController() . '.php';
+		if(!file_exists($path))
+		{
+			throw new FileNotFoundException('Controller file ' . $path . ' doesnt exists.');
+		}
 	}
 
-	public function setControllerType()
-	{
-		$this->controllerType = $this->route->getController();
-	}
-
-	public function setAction()
-	{
-		$this->action = $this->route->getAction();
-	}
-
+	/**
+	 * @throws ClassDoesntExistException
+	 */
 	public function getControllerInstance()
 	{
 		$className = 'App\\Controllers\\' . $this->controllerType;
@@ -54,10 +68,13 @@ class Controller
 			$this->controller = new $className();
 		}else
 		{
-			throw new \Exception('Class ' . $className . ' doesnt exist. Please create this class in ' . $this->filePath);
+			throw new ClassDoesntExistException('Class ' . $className . ' doesnt exist. Please create this class in ' . $this->filePath);
 		}
 	}
 
+	/**
+	 * @throws MethodDoesntExistException
+	 */
 	public function callAction()
 	{
 		if(method_exists($this->controller, $this->action))
@@ -66,7 +83,7 @@ class Controller
 			($this->controller)->$action();
 		}else
 		{
-			throw new \Exception('Method ' . $this->action . ' doesnt exist. Please create this class in ' . $this->filePath);
+			throw new MethodDoesntExistException('Method ' . $this->action . ' doesnt exist. Please create this class in ' . $this->filePath);
 		}
 	}
 }
