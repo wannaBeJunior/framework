@@ -6,6 +6,7 @@ use App\Modules\System\Exceptions\ClassDoesntExistException;
 use App\Modules\System\Exceptions\FileNotFoundException;
 use App\Modules\System\Exceptions\MethodDoesntExistException;
 use App\Modules\System\Router\Route;
+use Exception;
 
 class Controller
 {
@@ -16,7 +17,7 @@ class Controller
 
 	public function __construct(Route $route)
 	{
-		$this->filePath = '/app/controllers/' . $route->getController() . '.php';
+		$this->filePath = $_SERVER['DOCUMENT_ROOT'] . '/app/controllers/' . $route->getController() . '.php';
 		$this->controllerType = $route->getController();
 		$this->action = $route->getAction();
 	}
@@ -39,7 +40,8 @@ class Controller
 		{
 			echo '500 method doesnt exist';
 			die();
-		}finally {
+		}catch (Exception $exception)
+		{
 			echo '500';
 			die();
 		}
