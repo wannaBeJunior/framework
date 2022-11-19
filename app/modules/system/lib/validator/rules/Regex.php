@@ -2,7 +2,7 @@
 
 namespace App\Modules\System\Validator\Rules;
 
-use App\Modules\System\Exceptions\InvalidArgumentException;
+use InvalidArgumentException;
 
 class Regex implements RuleInterface
 {
