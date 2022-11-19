@@ -2,7 +2,9 @@
 
 namespace App\Modules\System\Autoloader;
 
-use Exception;
+use App\Modules\System\Exceptions\ClassDoesntExistException;
+use App\Modules\System\Exceptions\FileNotFoundException;
+use App\Modules\System\Exceptions\NamespaceDoesntExistException;
 
 class Autoloader
 {
@@ -18,8 +20,7 @@ class Autoloader
 	}
 
 	/**
-	 * @param string $namespace
-	 * @param string $dir
+	 * @param EntityInterface $entity
 	 * @return void
 	 */
 	public function addNamespace(EntityInterface $entity): void
@@ -47,16 +48,22 @@ class Autoloader
 			$namespace = substr($className, 0, $lastNamespaceSeparatorPosition);
 			$className = substr($className, $lastNamespaceSeparatorPosition, strlen($className));
 			$this->requireMappedFile($namespace, $className);
-		}catch (Exception $exception)
+		}catch (NamespaceDoesntExistException $exception)
 		{
-			echo $exception->getMessage();
+			echo "500 namespace doesnt exist";
+			die();
+		}catch (ClassDoesntExistException $exception)
+		{
+			echo "500 class doesnt exist";
+			die();
 		}
 	}
 
 	/**
 	 * @param string $namespace
 	 * @param string $className
-	 * @throws Exception
+	 * @throws ClassDoesntExistException
+	 * @throws NamespaceDoesntExistException
 	 */
 	public function requireMappedFile(string $namespace, string $className): void
 	{
@@ -74,11 +81,11 @@ class Autoloader
 			}
 			if(!$isRequired)
 			{
-				throw new Exception('Class ' . $className . ' doesnt exist. Please create file with this class');
+				throw new ClassDoesntExistException('Class ' . $className . ' doesnt exist. Please create file with this class');
 			}
 		}else
 		{
-			throw new Exception('Namespace ' . $namespace . ' doesnt exist in namespaces array. Please use Psr4Autoloader::addNamespace method for autoload classes');
+			throw new NamespaceDoesntExistException('Namespace ' . $namespace . ' doesnt exist in namespaces array. Please use Autoloader::addNamespace method for autoload classes');
 		}
 	}
 
@@ -87,6 +94,11 @@ class Autoloader
 	 */
 	public function registerApplicationNamespaces(): void
 	{
+		$path = $_SERVER['DOCUMENT_ROOT'] . "/app/namespaces.php";
+		if(!file_exists($path))
+		{
+			throw new FileNotFoundException($path . " doesnt exist");
+		}
 		$namespaces = require_once $_SERVER['DOCUMENT_ROOT'] . "/app/namespaces.php";
 		foreach($namespaces as $namespace)
 		{
