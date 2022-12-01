@@ -18,12 +18,7 @@ class Container
 	private function __construct()
 	{
 		$this->services = [
-			Router::class => fn() => new Router(),
-			Controller::class => fn() => new Controller(),
-			Configuration::class => fn() => new Configuration(),
-			MySqlDb::class => fn() => new MySqlDb(self::get(Configuration::class)),
-			Session::class => fn () => new Session(),
-			User::class => fn() => new User(self::get(MySqlDb::class), self::get(Session::class)),
+
 		];
 	}
 
