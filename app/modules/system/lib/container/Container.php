@@ -2,12 +2,7 @@
 
 namespace App\Modules\System\Container;
 
-use App\Modules\System\Configuration\Configuration;
-use App\Modules\System\Controller\Controller;
-use App\Modules\System\DataBase\MySqlDb;
-use App\Modules\System\Router\Router;
-use App\Modules\System\Session\Session;
-use App\Modules\System\User;
+use App\Modules\System\Logger\Logger;
 
 class Container
 {
@@ -18,7 +13,7 @@ class Container
 	private function __construct()
 	{
 		$this->services = [
-
+			Logger::class => fn() => new Logger(),
 		];
 	}
 
