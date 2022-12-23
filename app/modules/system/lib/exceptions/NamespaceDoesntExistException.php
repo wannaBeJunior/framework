@@ -2,8 +2,6 @@
 
 namespace App\Modules\System\Exceptions;
 
-use Exception;
-
-class NamespaceDoesntExistException extends Exception
+class NamespaceDoesntExistException extends BaseException
 {
 }
