@@ -9,12 +9,11 @@ class Route
 	private string $action;
 	private array $matches;
 
-	public function __construct(string $path, string $controller, string $action, array $matches = [])
+	public function __construct(string $path, string $controller, string $action)
 	{
 		$this->path = $path;
 		$this->controller = $controller;
 		$this->action = $action;
-		$this->matches = $matches;
 	}
 
 	/**
