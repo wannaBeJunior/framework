@@ -13,6 +13,7 @@ class Controller
 	protected string $filePath;
 	protected string $controllerType;
 	protected string $action;
+	protected array $urlParameters;
 	protected ControllerInterface $controller;
 
 	public function __construct(Route $route)
@@ -20,6 +21,7 @@ class Controller
 		$this->filePath = $_SERVER['DOCUMENT_ROOT'] . '/app/controllers/' . $route->getController() . '.php';
 		$this->controllerType = $route->getController();
 		$this->action = $route->getAction();
+		$this->urlParameters = $route->getMatches();
 	}
 
 	public function run()
@@ -82,7 +84,7 @@ class Controller
 		if(method_exists($this->controller, $this->action))
 		{
 			$action = $this->action;
-			($this->controller)->$action();
+			($this->controller)->$action($this->urlParameters);
 		}else
 		{
 			throw new MethodDoesntExistException('Method ' . $this->action . ' doesnt exist. Please create this class in ' . $this->filePath);

@@ -9,10 +9,6 @@ class Router
 {
 	protected array $routes;
 	protected string $currentURL;
-	protected const ROUTE_PLACEHOLDERS_TO_REGEXP = [
-		'{int}' => '([0-9]*)',
-		'{string}' => '([a-zA-Z-!@#$%^&*()]*)',
-	];
 	protected Route $route;
 	protected array $matches = [];
 
@@ -78,14 +74,9 @@ class Router
 	 */
 	private function replacePlaceholders(string $route): string
 	{
-		foreach (self::ROUTE_PLACEHOLDERS_TO_REGEXP as $placeholder => $regex)
-		{
-			if(stripos($route, $placeholder))
-			{
-				$route = str_replace($placeholder, $regex, $route);
-			}
-		}
-		return $route;
+		return preg_replace_callback('/{([a-zA-Z]+)}/', function($matches) {
+			return '(?<' . $matches[1] . '>[a-zA-Z0-9_]+)';
+		}, $route);
 	}
 
 	/**
