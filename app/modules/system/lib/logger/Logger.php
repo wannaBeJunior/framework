@@ -20,8 +20,8 @@ class Logger
 	 */
 	public function notice(string $message, string $file = 'sys.log'): void
 	{
-		$message = '['. date('Y-m-j G:i:s') . ' NOTICE]' . $message;
-		file_put_contents(self::NOTICE_LOGFILE_PATH . $file, $message);
+		$message = '['. date('Y-m-j G:i:s') . ' NOTICE at ' . self::getStackTraceInfo() . '] ' . $message . PHP_EOL;
+		file_put_contents($_SERVER['DOCUMENT_ROOT'] . self::NOTICE_LOGFILE_PATH . $file, $message, FILE_APPEND);
 	}
 
 	/**
@@ -31,8 +31,8 @@ class Logger
 	 */
 	public function warning(string $message, string $file = 'sys.log'): void
 	{
-		$message = '['. date('Y-m-j G:i:s') . ' WARNING]' . $message;
-		file_put_contents(self::WARNING_LOGFILE_PATH . $file, $message);
+		$message = '['. date('Y-m-j G:i:s') . ' WARNING at ' . self::getStackTraceInfo() . '] ' . $message . PHP_EOL;
+		file_put_contents($_SERVER['DOCUMENT_ROOT'] . self::WARNING_LOGFILE_PATH . $file, $message, FILE_APPEND);
 	}
 
 	/**
@@ -42,7 +42,13 @@ class Logger
 	 */
 	public function error(string $message, string $file = 'sys.log'): void
 	{
-		$message = '['. date('Y-m-j G:i:s') . ' ERROR]' . $message;
-		file_put_contents(self::ERROR_LOGFILE_PATH . $file, $message);
+		$message = '['. date('Y-m-j G:i:s') . ' ERROR at ' . self::getStackTraceInfo() . '] ' . $message . PHP_EOL;
+		file_put_contents($_SERVER['DOCUMENT_ROOT'] . self::ERROR_LOGFILE_PATH . $file, $message, FILE_APPEND);
+	}
+
+	static public function getStackTraceInfo(): string
+	{
+		$stackTrace = debug_backtrace();
+		return "{$stackTrace[1]['file']}:{$stackTrace[1]['line']}";
 	}
 }
