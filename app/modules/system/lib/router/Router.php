@@ -57,8 +57,8 @@ class Router
 	{
 		foreach ($this->routes as $route)
 		{
-			$path = $this->replacePlaceholders($route->getPath());
-			if($this->isCurrentUrl($path))
+			$this->replacePlaceholders($route);
+			if($this->isCurrentUrl($route))
 			{
 				unset($this->matches[0]);
 				$route->setMatches($this->matches);
@@ -72,22 +72,31 @@ class Router
 	 * @param string $route
 	 * @return string
 	 */
-	private function replacePlaceholders(string $route): string
+	private function replacePlaceholders(Route $route): void
 	{
-		return preg_replace_callback('/{([a-zA-Z]+)}/', function($matches) {
+		$path = preg_replace_callback('/{([a-zA-Z]+)}/', function($matches) {
 			return '(?<' . $matches[1] . '>[a-zA-Z0-9_]+)';
-		}, $route);
+		}, $route->getPath());
+		$route->setPath($path);
 	}
 
 	/**
 	 * @param string $path
 	 * @return bool
 	 */
-	private function isCurrentUrl(string $path): bool
+	private function isCurrentUrl(Route $route): bool
 	{
-		$path = trim($path, '/');
+		$path = trim($route->getPath(), '/');
 		$pattern = '/^' . str_replace('/', '\/', $path) . '$/';
-		return preg_match($pattern, trim($this->currentURL, '/'), $this->matches);
+		if(preg_match($pattern, trim($this->currentURL, '/'), $this->matches))
+		{
+			if($route->getMethod() != 'ALL')
+			{
+				return $_SERVER['REQUEST_METHOD'] === $route->getMethod();
+			}
+			return true;
+		}
+		return false;
 	}
 
 	/**

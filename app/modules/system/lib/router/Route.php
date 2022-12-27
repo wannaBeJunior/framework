@@ -8,12 +8,14 @@ class Route
 	private string $controller;
 	private string $action;
 	private array $matches;
+	private string $method;
 
-	public function __construct(string $path, string $controller, string $action)
+	public function __construct(string $path, string $controller, string $action, string $method = 'ALL')
 	{
 		$this->path = $path;
 		$this->controller = $controller;
 		$this->action = $action;
+		$this->method = $method;
 	}
 
 	/**
@@ -22,6 +24,14 @@ class Route
 	public function setMatches(array $matches): void
 	{
 		$this->matches = $matches;
+	}
+
+	/**
+	 * @param string $path
+	 */
+	public function setPath(string $path): void
+	{
+		$this->path = $path;
 	}
 
 	/**
@@ -54,5 +64,13 @@ class Route
 	public function getMatches(): array
 	{
 		return $this->matches;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getMethod(): string
+	{
+		return $this->method;
 	}
 }
