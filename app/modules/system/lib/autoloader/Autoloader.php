@@ -50,10 +50,16 @@ class Autoloader
 			$this->requireMappedFile($namespace, $className);
 		}catch (NamespaceDoesntExistException $exception)
 		{
+			$exception
+				->getLogger()
+				->error($exception->getMessage(), 'autoloader.log');
 			echo "500 namespace doesnt exist";
 			die();
 		}catch (ClassDoesntExistException $exception)
 		{
+			$exception
+				->getLogger()
+				->error($exception->getMessage(), 'autoloader.log');
 			echo "500 class doesnt exist";
 			die();
 		}
