@@ -15,7 +15,7 @@ abstract class Query
 
 	public function getSql(): string
 	{
-		return $this->sql;
+		return isset($this->sql)?:'';
 	}
 
 	public function getParams(): array
