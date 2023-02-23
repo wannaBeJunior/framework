@@ -71,7 +71,7 @@ class InsertQuery extends Query
 				$fieldDelimiter = ', ';
 			}
 			$value = $this->values[$i];
-			$this->sql = str_replace($valuesPlaceholder, "'{$value}'{$fieldDelimiter} {$valuesPlaceholder}", $this->sql);
+			$this->sql = str_replace($valuesPlaceholder, "{$value}{$fieldDelimiter} {$valuesPlaceholder}", $this->sql);
 		}
 		$this->deletePlaceholder($valuesPlaceholder);
 	}
