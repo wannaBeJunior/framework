@@ -9,9 +9,9 @@ class SelectQuery extends Query
 	private string $groupBy = '';
 	private array $limit = [];
 
-	public function setSelect(string $selectStatement): self
+	public function setSelect(array $selectStatement): self
 	{
-		$this->select[] = $selectStatement;
+		$this->select = $selectStatement;
 		return $this;
 	}
 
