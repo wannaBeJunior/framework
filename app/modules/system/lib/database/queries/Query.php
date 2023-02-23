@@ -9,7 +9,7 @@ use App\Modules\System\DataBase\MySqlDb;
 abstract class Query
 {
 	protected string $sql;
-	protected array $params;
+	protected array $params = [];
 	protected string $tableName = '';
 	private array $where = [];
 
