@@ -20,7 +20,7 @@ abstract class DataBase
 			$stmt = $this->pdo->prepare($sql);
 			$stmt->execute($params);
 			$dataBaseResult->stopTimer();
-			$dataBaseResult->setResult($stmt, $this->pdo);
+			$dataBaseResult->setResult($stmt, $this->pdo, $sql);
 			return $dataBaseResult;
 		}catch (\PDOException $exception)
 		{

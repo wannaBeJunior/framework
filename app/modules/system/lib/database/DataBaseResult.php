@@ -9,10 +9,11 @@ class DataBaseResult
 {
 	protected int $rowsCount;
 	protected int $completionTime;
-	protected array $result = [];
+	protected $result;
 	protected int $lastInsertedId;
 	protected int $startTime;
 	protected int $endTime;
+	protected string $sql;
 
 	public function startTimer(): void
 	{
@@ -24,7 +25,7 @@ class DataBaseResult
 		$this->endTime = microtime(true);
 	}
 
-	public function setResult(PDOStatement $statement, PDO $pdo): void
+	public function setResult(PDOStatement $statement, PDO $pdo, string $sql): void
 	{
 		$this->rowsCount = $statement->rowCount();
 		if($this->rowsCount > 1)
@@ -36,6 +37,7 @@ class DataBaseResult
 		}
 		$this->completionTime = $this->endTime - $this->startTime;
 		$this->lastInsertedId = $pdo->lastInsertId();
+		$this->sql = $sql;
 	}
 
 	public function getRowsCount(): int
@@ -56,5 +58,10 @@ class DataBaseResult
 	public function getLastInsertedId(): int
 	{
 		return $this->lastInsertedId;
+	}
+
+	public function getSql(): string
+	{
+		return $this->sql;
 	}
 }
