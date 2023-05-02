@@ -48,6 +48,10 @@ abstract class Query
 		{
 			for ($i = 0; $i < count($this->where); $i++)
 			{
+				if(!isset($this->where[$i]['condition']))
+				{
+					continue;
+				}
 				if($i == 0)
 				{
 					$this->where[$i]['logic'] = 'WHERE ';
