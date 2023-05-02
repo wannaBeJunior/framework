@@ -8,6 +8,7 @@ class SelectQuery extends Query
 	private array $joins = [];
 	private string $groupBy = '';
 	private array $limit = [];
+	private array $order = [];
 
 	public function setSelect(array $selectStatement): self
 	{
@@ -33,9 +34,15 @@ class SelectQuery extends Query
 		return $this;
 	}
 
+	public function setOrderBy(array $order): self
+	{
+		$this->order = $order;
+		return $this;
+	}
+
 	protected function generateSql(): self
 	{
-		$this->sql = "SELECT {SELECT} FROM {TABLE} {JOIN} {WHERE} {GROUP BY} {LIMIT};";
+		$this->sql = "SELECT {SELECT} FROM {TABLE} {JOIN} {WHERE} {GROUP BY} {ORDER BY} {LIMIT};";
 		try {
 			$this->replaceSelect();
 			$this->replaceTableName();
@@ -43,6 +50,7 @@ class SelectQuery extends Query
 			$this->replaceWhere();
 			$this->replaceGroupBy();
 			$this->replaceLimit();
+			$this->replaceOrderBy();
 		}catch (\Exception $exception)
 		{
 			echo $exception->getMessage();
@@ -65,7 +73,7 @@ class SelectQuery extends Query
 			{
 				$fieldDelimiter = ', ';
 			}
-			$this->sql = str_replace($selectPlaceholder, "`{$this->select[$i]}`{$fieldDelimiter}{$selectPlaceholder}", $this->sql);
+			$this->sql = str_replace($selectPlaceholder, "{$this->select[$i]}{$fieldDelimiter}{$selectPlaceholder}", $this->sql);
 		}
 		$this->deletePlaceholder($selectPlaceholder);
 	}
@@ -94,7 +102,7 @@ class SelectQuery extends Query
 		if($this->groupBy)
 		{
 			$this->groupBy = str_replace('this', $this->tableName, $this->groupBy);
-			$this->sql = str_replace($groupByPlaceholder, "GROUP BY {$this->groupBy}", $this->sql);
+			$this->sql = str_replace($groupByPlaceholder, "GROUP BY `{$this->groupBy}`", $this->sql);
 		}
 		$this->deletePlaceholder($groupByPlaceholder);
 	}
@@ -113,5 +121,29 @@ class SelectQuery extends Query
 			}
 		}
 		$this->deletePlaceholder($limitPlaceholder);
+	}
+
+	private function replaceOrderBy(): void
+	{
+		$orderByPlaceholder = '{ORDER BY}';
+		if(isset($this->order['fields']))
+		{
+			for($i = 0; $i < count($this->order['fields']); $i++)
+			{
+				if($i == 0)
+				{
+					$this->sql = str_replace($orderByPlaceholder, "ORDER BY `{$this->order['fields'][$i]}` {ORDER BY}", $this->sql);
+				}else
+				{
+					$this->sql = str_replace($orderByPlaceholder, ", `{$this->order['fields'][$i]}` {ORDER BY}", $this->sql);
+				}
+			}
+			$order = 'ASC';
+			if($this->order['order'])
+			{
+				$order = $this->order['order'];
+			}
+			$this->sql = str_replace($orderByPlaceholder, " $order ", $this->sql);
+		}
 	}
 }
