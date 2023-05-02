@@ -6,20 +6,21 @@ use Exception;
 
 class UpdateQuery extends Query
 {
-	protected array $values = [];
+	protected array $fields = [];
 
-	public function setValues(array $values): self
+	public function setFields(array $fields): self
 	{
-		$this->values = $values;
+		$this->fields = $fields;
 		return $this;
 	}
 
 	protected function generateSql(): self
 	{
-		$this->sql = "UPDATE {TABLE} SET {VALUES}";
+		$this->sql = "UPDATE {TABLE} SET {VALUES} {WHERE}";
 		try {
 			$this->replaceTableName();
-			$this->replaceValues();
+			$this->replaceFields();
+			$this->replaceWhere();
 		}catch (Exception $exception)
 		{
 			echo $exception->getMessage();
@@ -28,12 +29,12 @@ class UpdateQuery extends Query
 		return $this;
 	}
 
-	protected function replaceValues(): self
+	protected function replaceFields(): self
 	{
 		$valuesPlaceholder = '{VALUES}';
-		foreach($this->values as $field => $value)
+		foreach($this->fields as $field)
 		{
-			$this->sql = str_replace($valuesPlaceholder, "`{$field}` = {$valuesPlaceholder} {$valuesPlaceholder}", $this->sql);
+			$this->sql = str_replace($valuesPlaceholder, "`{$field}` = :{$field} {$valuesPlaceholder} {$valuesPlaceholder}", $this->sql);
 		}
 		$this->deletePlaceholder($valuesPlaceholder);
 		return $this;
