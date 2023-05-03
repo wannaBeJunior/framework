@@ -34,6 +34,9 @@ class DataBaseResult
 		}elseif($this->rowsCount == 1)
 		{
 			$this->result = $statement->fetch();
+		}else
+		{
+			$this->result = [];
 		}
 		$this->completionTime = $this->endTime - $this->startTime;
 		$this->lastInsertedId = $pdo->lastInsertId();
