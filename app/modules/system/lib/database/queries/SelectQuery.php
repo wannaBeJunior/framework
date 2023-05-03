@@ -145,5 +145,6 @@ class SelectQuery extends Query
 			}
 			$this->sql = str_replace($orderByPlaceholder, " $order ", $this->sql);
 		}
+		$this->deletePlaceholder($orderByPlaceholder);
 	}
 }
