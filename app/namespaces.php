@@ -19,4 +19,5 @@ return [
 	new Entity('App\Modules\System\Exceptions\Interfaces\\', 'app/modules/system/lib/exceptions/interfaces'),
 	new Entity('App\Modules\System\Exceptions\\', 'app/modules/system/lib/exceptions'),
 	new Entity('App\Modules\System\Options\\', 'app/modules/system/lib/options'),
+	new Entity('App\Modules\System\Request\\', 'app/modules/system/lib/request'),
 ];
