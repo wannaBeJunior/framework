@@ -10,8 +10,8 @@ abstract class DataBase
 
 	final public function query(string $sql, array $params = []): DataBaseResult
 	{
+		$dataBaseResult = new DataBaseResult;
 		try {
-			$dataBaseResult = new DataBaseResult;
 			$dataBaseResult->startTimer();
 			if(!self::checkSqlStringPlaceholdersEquality($sql, $params))
 			{
@@ -21,12 +21,11 @@ abstract class DataBase
 			$stmt->execute($params);
 			$dataBaseResult->stopTimer();
 			$dataBaseResult->setResult($stmt, $this->pdo, $sql);
-			return $dataBaseResult;
 		}catch (\PDOException $exception)
 		{
-			echo $exception->getMessage();
-			die();
+			$dataBaseResult->setErrorResult($exception);
 		}
+		return $dataBaseResult;
 	}
 
 	final static public function checkSqlStringPlaceholdersEquality(string $sql, array $params): bool
