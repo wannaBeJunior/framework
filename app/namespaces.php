@@ -20,4 +20,6 @@ return [
 	new Entity('App\Modules\System\Exceptions\\', 'app/modules/system/lib/exceptions'),
 	new Entity('App\Modules\System\Options\\', 'app/modules/system/lib/options'),
 	new Entity('App\Modules\System\Request\\', 'app/modules/system/lib/request'),
+	new Entity('App\Modules\System\User\UserConfirmation\Interfaces\\', 'app/modules/system/lib/user/userconfirmation/interfaces'),
+	new Entity('App\Modules\System\User\UserConfirmation\\', 'app/modules/system/lib/user/userconfirmation'),
 ];
