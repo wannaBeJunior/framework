@@ -15,23 +15,10 @@ use App\Modules\System\Validator\Rules\Phone;
 use App\Modules\System\Validator\Rules\Regex;
 use App\Modules\System\Validator\Validator;
 
-class Registration
+class Registration extends BaseUserAction
 {
-	protected Logger $logger;
 	protected const DUPLICATE_ERROR_CODE = 23000;
-	protected array $errors;
-	protected Request $request;
 	protected UserConfirmationInterface $userConfirmation;
-
-	public function getErrors(): array
-	{
-		return $this->errors;
-	}
-
-	public function isSuccess(): bool
-	{
-		return !(bool) count($this->errors);
-	}
 
 	public function __construct(Request $request, UserConfirmationInterface $userConfirmation = null)
 	{
@@ -79,45 +66,6 @@ class Registration
 						'message' => 'Непредвиденная ошибка'
 					];
 				}
-			}
-		}
-	}
-
-	/**
-	 * Приводит ключи элементов массива к верхнему регистру
-	 * @param array $data
-	 * @return array
-	 */
-	protected function setDataKeysToUpperCase(array $data): array
-	{
-		$newData = [];
-		foreach ($data as $key => $value)
-		{
-			if(is_array($value))
-			{
-				$newData[] = $this->setDataKeysToUpperCase($value);
-				continue;
-			}
-			$newData[mb_strtoupper($key)] = $value;
-		}
-		return $newData;
-	}
-
-	/**
-	 * Проверяет, что все обязательные поля заполнены
-	 */
-	protected function checkRequiredFields(): void
-	{
-		$data = $this->setDataKeysToUpperCase($this->request->getPostParameters());
-		$requiredFields = Options::getOption('required_user_fields');
-		foreach ($requiredFields['values'] as $requiredField)
-		{
-			if(!in_array($requiredField['code'], array_keys($data)))
-			{
-				$this->errors[] = [
-					'field' => $requiredField['code'],
-					'message' => 'Не было заполнено обязательное поле'
-				];
 			}
 		}
 	}
@@ -178,10 +126,7 @@ class Registration
 			$fields['PASSWORD'] = $data['PASSWORD'];
 		}else
 		{
-			$this->errors[] = [
-				'field' => 'PASSWORD',
-				'message' => 'Не было заполнено обязательное поле'
-			];
+			$this->setErrors('PASSWORD', 'Не было заполнено обязательное поле');
 		}
 
 		$validation = Validator::run($fields, $rules);
@@ -191,20 +136,14 @@ class Registration
 			{
 				if(!$validateResult)
 				{
-					$this->errors[] = [
-						'field' => $validatedField,
-						'message' => 'Невалидный ввод'
-					];
+					$this->setErrors($validatedField, 'Невалидный ввод');
 				}
 			}
 		}
 
 		if($data['PASSWORD'] != $data['REPEATED_PASSWORD'])
 		{
-			$this->errors[] = [
-				'field' => 'REPEATED_PASSWORD',
-				'message' => 'Пароли не совпадают'
-			];
+			$this->setErrors('REPEATED_PASSWORD', 'Пароли не совпадают');
 		}
 	}
 
