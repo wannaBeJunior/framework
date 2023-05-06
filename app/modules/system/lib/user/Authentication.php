@@ -9,6 +9,7 @@ use App\Modules\System\Logger\Logger;
 use App\Modules\System\Options\Options;
 use App\Modules\System\Request\Request;
 use App\Modules\System\Session\Session;
+use App\Modules\System\Tools\GroupsTools;
 
 class Authentication extends BaseUserAction
 {
@@ -52,9 +53,10 @@ class Authentication extends BaseUserAction
 			return;
 		}
 		$this->saveLoginTime($userData['id']);
+		$userGroups = GroupsTools::getUserGroups($userData['id']);
 		Session::set('USER', [
 			'ID' => $userData['id'],
-			'ROLE' => $userData['code']
+			'GROUPS' => array_column($userGroups, 'group')
 		]);
 	}
 
@@ -69,12 +71,7 @@ class Authentication extends BaseUserAction
 		$fields = [];
 		$userSelect = (new SelectQuery)
 			->setTableName('users')
-			->setSelect(['users.*', 'access_levels.code'])
-			->setJoin([
-				'type' => 'inner',
-				'ref_table' => 'access_levels',
-				'on' => 'this.access_level = ref.id'
-			]);
+			->setSelect(['*']);
 		foreach ($requiredFields['values'] as $requiredField)
 		{
 			$fields[mb_strtolower($requiredField['code'])] = $data[$requiredField['code']];
