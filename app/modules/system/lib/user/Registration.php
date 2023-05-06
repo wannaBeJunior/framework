@@ -30,7 +30,7 @@ class Registration
 
 	public function isSuccess(): bool
 	{
-		return (bool) count($this->errors);
+		return !(bool) count($this->errors);
 	}
 
 	public function __construct(Request $request, UserConfirmationInterface $userConfirmation = null)
