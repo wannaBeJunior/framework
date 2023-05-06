@@ -6,8 +6,14 @@ use App\Modules\System\DataBase\Queries\SelectQuery;
 
 class Options
 {
+	static protected array $cache;
+
 	static public function getOption(string $optionName): array
 	{
+		if(isset(static::$cache[$optionName]))
+		{
+			return static::$cache[$optionName];
+		}
 		$option = (new SelectQuery())
 			->setTableName('options')
 			->setSelect(['*'])
@@ -32,7 +38,9 @@ class Options
 				->getResult();
 			if($optionValue)
 			{
-				return array_merge($option, $optionValue);
+				$optionResult = array_merge($option, $optionValue);
+				static::$cache[$optionName] = $optionResult;
+				return $optionResult;
 			}
 			$optionValue = (new SelectQuery())
 				->setTableName('option_enums')
@@ -45,6 +53,7 @@ class Options
 			if($optionValue)
 			{
 				$option['values'] = $optionValue;
+				static::$cache[$optionName] = $option;
 				return $option;
 			}
 		}
