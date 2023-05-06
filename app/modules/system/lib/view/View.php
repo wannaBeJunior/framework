@@ -6,6 +6,8 @@ class View
 {
 	protected string $title;
 	protected array $placeholders = [];
+	protected array $css = [];
+	protected array $js = [];
 
 	public function show(string $viewName, array $result = [])
 	{
@@ -64,6 +66,20 @@ class View
 				$html = str_replace("#{$placeholder}#", $content, $html);
 			}
 		}
+		if($this->css)
+		{
+			foreach($this->css as $css)
+			{
+				$html = str_replace("</head>", "<link href='{$css}?" . time() . "' rel='stylesheet'></head>", $html);
+			}
+		}
+		if($this->js)
+		{
+			foreach($this->js as $js)
+			{
+				$html = str_replace("</body>", "<script src='{$js}?" . time() . "'></script></body>", $html);
+			}
+		}
 	}
 
 	public function setTitle(string $title)
@@ -74,5 +90,15 @@ class View
 	public function setPlaceholder(string $key, string $content)
 	{
 		$this->placeholders[$key] = $content;
+	}
+
+	protected function includeCss(string $path)
+	{
+		$this->css[] = $path;
+	}
+
+	protected function includeJs(string $path)
+	{
+		$this->js[] = $path;
 	}
 }
