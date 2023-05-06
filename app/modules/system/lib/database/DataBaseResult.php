@@ -16,7 +16,7 @@ class DataBaseResult
 	protected string $sql;
 	protected string $error;
 	protected string $errorCode;
-	protected bool $success;
+	protected bool $success = true;
 
 	public function startTimer(): void
 	{
@@ -56,37 +56,37 @@ class DataBaseResult
 
 	public function getRowsCount(): int
 	{
-		return $this->rowsCount;
+		return $this->rowsCount ?? 0;
 	}
 
 	public function getCompletionTime(): int
 	{
-		return $this->completionTime;
+		return $this->completionTime ?? 0;
 	}
 
 	public function getResult(): array
 	{
-		return $this->result;
+		return $this->result ?? [];
 	}
 
 	public function getError(): string
 	{
-		return $this->error;
+		return $this->error ?? '';
 	}
 
 	public function getErrorCode(): string
 	{
-		return $this->errorCode;
+		return $this->errorCode ?? '';
 	}
 
 	public function getLastInsertedId(): int
 	{
-		return $this->lastInsertedId;
+		return $this->lastInsertedId ?? 0;
 	}
 
 	public function getSql(): string
 	{
-		return $this->sql;
+		return $this->sql ?? '';
 	}
 
 	public function isSuccess(): bool
