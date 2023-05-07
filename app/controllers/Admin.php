@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Modules\System\Container\Container;
 use App\Modules\System\Controller\ControllerInterface;
+use App\Modules\System\Options\Options;
 use App\Modules\System\Tools\AdminTools;
 use App\Modules\System\Tools\GroupsTools;
 use App\Modules\System\Tools\UserTools;
@@ -26,13 +27,20 @@ class Admin implements ControllerInterface
 		}
 
 		$modules = AdminTools::getModules();
+		$options = Options::getOptionsByModule($module);
+		$filteredOptions = [];
+		foreach ($options as $option)
+		{
+			$filteredOptions[$option['section_name']][] = $option;
+		}
 		/**
 		 * @var View $view
 		 */
 		$view = Container::getInstance()->get(View::class);
 		$view->show('settings', [
 			'modules' => $modules,
-			'current_module' => $module
+			'current_module' => $module,
+			'options' => $filteredOptions
 		]);
 	}
 
