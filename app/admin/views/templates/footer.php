@@ -1,4 +1,4 @@
-<button class="btn btn-success" type="button">
+<button class="btn btn-success option-save" type="button">
 	Сохранить
 </button>
 <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebar" aria-labelledby="sidebarLabel">

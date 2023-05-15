@@ -3,6 +3,7 @@
 namespace App\Modules\System\Options;
 
 use App\Modules\System\DataBase\Queries\SelectQuery;
+use App\Modules\System\DataBase\Queries\UpdateQuery;
 
 class Options
 {
@@ -169,5 +170,70 @@ class Options
 			return $result->getResult();
 		}
 		return [];
+	}
+
+	/**
+	 * @param int $optionId
+	 * @param string|int|array $value
+	 * @return bool
+	 */
+	static public function setOptionById(int $optionId, $value): bool
+	{
+		if(is_array($value))
+		{
+			return static::setEnumOptionById($optionId, $value);
+		}
+
+		$update = (new UpdateQuery())
+			->setTableName('option_values')
+			->setFields(['value'])
+			->setParams([
+				'value' => $value,
+				'option' => $optionId
+			])
+			->setWhere([
+				'condition' => '`option` = :option'
+			])
+			->execution();
+
+		return $update->isSuccess();
+	}
+
+	/**
+	 * @param int $optionId
+	 * @param array $values
+	 * @return bool
+	 */
+	static protected function setEnumOptionById(int $optionId, array $values): bool
+	{
+		$clear = (new UpdateQuery())
+			->setTableName('option_enums')
+			->setFields(['selected'])
+			->setWhere([
+				'condition' => '`option` = :option'
+			])
+			->setParams([
+				'selected' => 0,
+				'option' => $optionId
+			])
+			->execution();
+
+		$update = (new UpdateQuery())
+			->setTableName('option_enums')
+			->setFields(['selected']);
+
+		$fields = [];
+		foreach ($values as $value)
+		{
+			$update->setWhere([
+				'condition' => '`id` = :id' . $value,
+				'logic' => 'OR'
+			]);
+			$fields['id'.$value] = $value;
+		}
+		$fields['selected'] = 1;
+		$result = $update->setParams($fields)
+		->execution();
+		return $result->isSuccess();
 	}
 }
