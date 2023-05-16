@@ -61,6 +61,12 @@ class Admin implements ControllerInterface
 		]);
 	}
 
+	public function RedirectToPanel()
+	{
+		Header('Location: /admin/settings/system');
+		die();
+	}
+
 	protected function redirectToPublic()
 	{
 		Header('Location: /');
