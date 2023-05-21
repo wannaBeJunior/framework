@@ -1,0 +1,25 @@
+.not-available-icon__container {
+    color: #e10000
+}
+
+.not-available-icon {
+    border-radius: 100%;
+    margin-bottom: 2px;
+    background-color: #e10000;
+    width: 5px !important;
+    height: 5px !important;
+    display: inline-block;
+}
+
+.available-icon__container {
+    color: #5fa800
+}
+
+.available-icon {
+    border-radius: 100%;
+    margin-bottom: 2px;
+    background-color: #5fa800;
+    width: 5px !important;
+    height: 5px !important;
+    display: inline-block;
+}
