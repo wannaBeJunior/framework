@@ -1,0 +1,14 @@
+#counter {
+    display: flex;
+    justify-content: space-between;
+    width: 80px;
+}
+
+.counter__form {
+    width: 42px;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+}
