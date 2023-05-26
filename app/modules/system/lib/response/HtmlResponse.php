@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Modules\System\View;
+namespace App\Modules\System\Response;
 
-class View
+class HtmlResponse extends Response
 {
 	protected string $title;
 	protected array $placeholders = [];
 	protected array $css = [];
 	protected array $js = [];
 
-	public function show(string $viewName, array $result = [])
+	public function send(string $viewName = '', array $result = [])
 	{
 		$this->startBuffering();
 		$this->showHeader($result);
