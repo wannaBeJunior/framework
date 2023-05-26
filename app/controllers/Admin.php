@@ -9,7 +9,7 @@ use App\Modules\System\Request\Request;
 use App\Modules\System\Tools\AdminTools;
 use App\Modules\System\Tools\GroupsTools;
 use App\Modules\System\Tools\UserTools;
-use App\Modules\System\View\View;
+use App\Modules\System\Response\HtmlResponse;
 
 class Admin implements ControllerInterface
 {
@@ -35,10 +35,10 @@ class Admin implements ControllerInterface
 			$filteredOptions[$option['section_name']][] = $option;
 		}
 		/**
-		 * @var View $view
+		 * @var HtmlResponse $view
 		 */
-		$view = Container::getInstance()->get(View::class);
-		$view->show('settings', [
+		$view = Container::getInstance()->get(HtmlResponse::class);
+		$view->send('settings', [
 			'modules' => $modules,
 			'current_module' => $module,
 			'options' => $filteredOptions

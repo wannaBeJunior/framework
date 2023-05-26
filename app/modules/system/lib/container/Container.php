@@ -6,7 +6,7 @@ use App\Modules\System\Configuration\Configuration;
 use App\Modules\System\DataBase\MySqlDb;
 use App\Modules\System\Logger\Logger;
 use App\Modules\System\Request\Request;
-use App\Modules\System\View\View;
+use App\Modules\System\Response\HtmlResponse;
 
 class Container
 {
@@ -21,7 +21,7 @@ class Container
 			Configuration::class => fn() => new Configuration(),
 			MySqlDb::class => fn() => new MySqlDb(self::get(Configuration::class)),
 			Request::class => fn() => new Request(),
-			View::class => fn() => new View()
+			HtmlResponse::class => fn() => new HtmlResponse()
 		];
 	}
 
