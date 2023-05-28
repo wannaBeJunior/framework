@@ -45,9 +45,10 @@ class Registration extends BaseUserAction
 
 		//todo: реализовать доп. поля пользователя и валидацию по ним.
 
-		if(!isset($this->errors))
+		if(!$this->errors)
 		{
 			$userInsert = $this->userInsert();
+			$this->addUserToDefaultGroup($userInsert->getLastInsertedId());
 			if($userInsert->isSuccess())
 			{
 				$this->userConfirm($userInsert);
@@ -157,17 +158,30 @@ class Registration extends BaseUserAction
 
 		return (new InsertQuery())
 			->setTableName('users')
-			->setFields(['name', 'email', 'login', 'password', 'register_date', 'access_level', 'phone'])
-			->setValues([':name', ':email', ':login', ':password', ':register_date', ':access_level', ':phone'])
+			->setFields(['name', 'email', 'login', 'password', 'register_date', 'phone'])
+			->setValues([':name', ':email', ':login', ':password', ':register_date', ':phone'])
 			->setParams([
 				'name' => $data['NAME'] ?? '',
 				'email' => $data['EMAIL'] ?? '',
 				'login' => $data['LOGIN'] ?? '',
 				'password' => password_hash($data['PASSWORD'], PASSWORD_BCRYPT),
 				'register_date' => date('Y-m-d H:i:s'),
-				'access_level' => Options::getOption('default_user_access_level')['value'],
 				'phone' => $data['PHONE'] ?? '',
 			])
+			->execution();
+	}
+
+	/**
+	 * Пользователь присоединяется к группе по-умолчанию
+	 * @param int $userId
+	 */
+	public function addUserToDefaultGroup(int $userId)
+	{
+		$defaultGroupId = Options::getOption('default_user_access_level')['value'];
+		(new InsertQuery())
+			->setTableName('groups_users')
+			->setFields(['group', 'user'])
+			->setValues([$defaultGroupId, $userId])
 			->execution();
 	}
 
