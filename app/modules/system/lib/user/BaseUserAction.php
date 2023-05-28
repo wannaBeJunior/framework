@@ -9,7 +9,7 @@ use App\Modules\System\Request\Request;
 abstract class BaseUserAction
 {
 	protected Logger $logger;
-	protected array $errors;
+	protected array $errors = [];
 	protected Request $request;
 
 	abstract protected function run();
@@ -56,7 +56,7 @@ abstract class BaseUserAction
 		];
 		foreach ($requiredFields['values'] as $requiredField)
 		{
-			if(!in_array($requiredField['code'], array_keys($data)))
+			if(!in_array($requiredField['code'], array_keys($data)) && $requiredField['selected'])
 			{
 				$this->setErrors($requiredField['code'], 'Не было заполнено обязательное поле');
 			}

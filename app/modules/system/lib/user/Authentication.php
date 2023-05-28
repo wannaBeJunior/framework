@@ -74,6 +74,10 @@ class Authentication extends BaseUserAction
 			->setSelect(['*']);
 		foreach ($requiredFields['values'] as $requiredField)
 		{
+			if(!$requiredField['selected'])
+			{
+				continue;
+			}
 			$fields[mb_strtolower($requiredField['code'])] = $data[$requiredField['code']];
 			$userSelect->setWhere([
 				'condition' => mb_strtolower($requiredField['code']) . ' = :' . mb_strtolower($requiredField['code']),
