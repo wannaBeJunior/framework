@@ -25,4 +25,5 @@ return [
 	new Entity('App\Modules\System\User\UserConfirmation\Interfaces\\', 'app/modules/system/lib/user/userconfirmation/interfaces'),
 	new Entity('App\Modules\System\User\UserConfirmation\\', 'app/modules/system/lib/user/userconfirmation'),
 	new Entity('App\Modules\System\Tools\\', 'app/modules/system/lib/tools'),
+	new Entity('App\Modules\System\File\\', 'app/modules/system/lib/file'),
 ];
