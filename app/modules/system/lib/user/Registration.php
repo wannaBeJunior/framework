@@ -32,15 +32,14 @@ class Registration extends BaseUserAction
 
 	public function run()
 	{
-		$data = $this->setDataKeysToUpperCase($this->request->getPostParameters());
+		$this->userData = $this->setDataKeysToUpperCase($this->request->getPostParameters());
 
-		if(!$data)
+		if(!$this->userData)
 		{
 			$this->logger->warning("В метод регистрации пользователя передан пустой массив полей.");
 			return;
 		}
 
-		$this->checkRequiredFields();
 		$this->validateFields();
 
 		//todo: реализовать доп. поля пользователя и валидацию по ним.
@@ -80,18 +79,7 @@ class Registration extends BaseUserAction
 		$fields = [];
 		$rules = [];
 
-		if(isset($data['LOGIN']) && Options::getOption('login_validate'))
-		{
-			if($pattern = Options::getOption('login_validate_rule')['value'])
-			{
-				$rules['LOGIN'][] = new Regex($pattern);
-			}else
-			{
-				$rules['LOGIN'][] = new Login();
-			}
-			$fields['LOGIN'] = $data['LOGIN'];
-		}
-		if(isset($data['EMAIL']) && Options::getOption('email_validate'))
+		if(isset($this->userData['EMAIL']))
 		{
 			if($pattern = Options::getOption('email_validate_rule')['value'])
 			{
@@ -102,7 +90,7 @@ class Registration extends BaseUserAction
 			}
 			$fields['EMAIL'] = $data['EMAIL'];
 		}
-		if(isset($data['PHONE']) && Options::getOption('phone_validate'))
+		if(isset($this->userData['PHONE']))
 		{
 			if($pattern = Options::getOption('phone_validate_rule')['value'])
 			{
@@ -113,15 +101,15 @@ class Registration extends BaseUserAction
 			}
 			$fields['PHONE'] = $data['PHONE'];
 		}
-		if(isset($data['NAME']))
+		if(isset($this->userData['NAME']))
 		{
 			$rules['NAME'][] = new Regex('/^[\p{L}\p{M} ]+$/u');
 			$fields['NAME'] = $data['NAME'];
 		}else
 		{
-			$data['NAME'] = '';
+			$this->userData['NAME'] = '';
 		}
-		if(isset($data['PASSWORD']) && $data['PASSWORD'])
+		if(isset($this->userData['PASSWORD']) && $data['PASSWORD'])
 		{
 			$rules['PASSWORD'][] = new Password();
 			$fields['PASSWORD'] = $data['PASSWORD'];
@@ -154,19 +142,16 @@ class Registration extends BaseUserAction
 	 */
 	public function userInsert(): DataBaseResult
 	{
-		$data = $this->setDataKeysToUpperCase($this->request->getPostParameters());
-
 		return (new InsertQuery())
 			->setTableName('users')
-			->setFields(['name', 'email', 'login', 'password', 'register_date', 'phone'])
-			->setValues([':name', ':email', ':login', ':password', ':register_date', ':phone'])
+			->setFields(['name', 'email', 'password', 'register_date', 'phone'])
+			->setValues([':name', ':email', ':password', ':register_date', ':phone'])
 			->setParams([
-				'name' => $data['NAME'] ?? '',
-				'email' => $data['EMAIL'] ?? '',
-				'login' => $data['LOGIN'] ?? '',
-				'password' => password_hash($data['PASSWORD'], PASSWORD_BCRYPT),
+				'name' => $this->userData['NAME'] ?? '',
+				'email' => $this->userData['EMAIL'] ?? '',
+				'password' => password_hash($this->userData['PASSWORD'], PASSWORD_BCRYPT),
 				'register_date' => date('Y-m-d H:i:s'),
-				'phone' => $data['PHONE'] ?? '',
+				'phone' => $this->userData['PHONE'] ?? '',
 			])
 			->execution();
 	}

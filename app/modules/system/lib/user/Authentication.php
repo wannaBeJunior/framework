@@ -21,15 +21,14 @@ class Authentication extends BaseUserAction
 
 	public function run()
 	{
-		$data = $this->setDataKeysToUpperCase($this->request->getPostParameters());
+		$this->userData = $this->setDataKeysToUpperCase($this->request->getPostParameters());
 
-		if(!$data)
+		if(!$this->userData)
 		{
 			$this->logger->warning("В метод аутентификации пользователя передан пустой массив полей.");
 			return;
 		}
 
-		$this->checkRequiredFields();
 		if(isset($this->errors) && $this->errors)
 		{
 			return;
@@ -47,7 +46,7 @@ class Authentication extends BaseUserAction
 			return;
 		}
 		$userData = $user->getResult();
-		if(!password_verify($data['PASSWORD'], $userData['password']))
+		if(!password_verify($this->userData['PASSWORD'], $userData['password']))
 		{
 			$this->setErrors('PASSWORD', 'Введен неверный пароль');
 			return;
@@ -61,30 +60,21 @@ class Authentication extends BaseUserAction
 	}
 
 	/**
-	 * ПОиск пользователя в БД по его данным
+	 * ПОиск пользователя в БД по его email
 	 * @return DataBaseResult
 	 */
 	protected function getUser(): DataBaseResult
 	{
-		$data = $this->setDataKeysToUpperCase($this->request->getPostParameters());
-		$requiredFields = Options::getOption('required_user_fields');
-		$fields = [];
-		$userSelect = (new SelectQuery)
+		return (new SelectQuery)
 			->setTableName('users')
-			->setSelect(['*']);
-		foreach ($requiredFields['values'] as $requiredField)
-		{
-			if(!$requiredField['selected'])
-			{
-				continue;
-			}
-			$fields[mb_strtolower($requiredField['code'])] = $data[$requiredField['code']];
-			$userSelect->setWhere([
-				'condition' => mb_strtolower($requiredField['code']) . ' = :' . mb_strtolower($requiredField['code']),
-				'logic' => 'AND'
-			]);
-		}
-		return $userSelect->setParams($fields)->execution();
+			->setSelect(['*'])
+			->setWhere([
+				'condition' => 'email = :email'
+			])
+			->setParams([
+				'email' => $this->userData['EMAIL']
+			])
+			->execution();
 	}
 
 	/**

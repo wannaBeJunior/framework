@@ -11,6 +11,7 @@ abstract class BaseUserAction
 	protected Logger $logger;
 	protected array $errors = [];
 	protected Request $request;
+	protected array $userData;
 
 	abstract protected function run();
 
@@ -42,25 +43,6 @@ abstract class BaseUserAction
 			$newData[mb_strtoupper($key)] = $value;
 		}
 		return $newData;
-	}
-
-	/**
-	 * Проверяет, что все обязательные поля заполнены
-	 */
-	protected function checkRequiredFields(): void
-	{
-		$data = $this->setDataKeysToUpperCase($this->request->getPostParameters());
-		$requiredFields = Options::getOption('required_user_fields');
-		$requiredFields['values'][] = [
-			'code' => 'PASSWORD'
-		];
-		foreach ($requiredFields['values'] as $requiredField)
-		{
-			if(!in_array($requiredField['code'], array_keys($data)) && $requiredField['selected'])
-			{
-				$this->setErrors($requiredField['code'], 'Не было заполнено обязательное поле');
-			}
-		}
 	}
 
 	/**
